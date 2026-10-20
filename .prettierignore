@@ -6,3 +6,4 @@ apps/*/ios/
 *.md
 packages/eg-electricity-tariff/data/
 packages/eg-electricity-tariff/src/tariffs.data.ts
+apps/*/drizzle/

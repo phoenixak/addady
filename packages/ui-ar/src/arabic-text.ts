@@ -17,6 +17,21 @@ const ALEF = cp(0x0627);
 const LAM = cp(0x0644);
 const DEFINITE_ARTICLE = ALEF + LAM;
 const REVERSED_ARTICLE = LAM + ALEF;
+/** Common real words ending in lam-alef (adverbs, greetings). This file is exempt from the scan. */
+const REAL_LAM_ALEF_WORDS = new Set([
+  'مثلا',
+  'أولا',
+  'أصلا',
+  'فعلا',
+  'أهلا',
+  'قليلا',
+  'طويلا',
+  'جميلا',
+  'كاملا',
+  'حالا',
+  'عاجلا',
+  'مستقبلا',
+]);
 
 /**
  * Returns why `text` looks like reversed (visual-order) Arabic, or null if it looks logical.
@@ -31,9 +46,11 @@ export function reversedArabicReason(text: string): string | null {
   if (startsWithFinalOnly) {
     return `a word starts with U+${startsWithFinalOnly.codePointAt(0)!.toString(16).toUpperCase().padStart(4, '0')}, a letter that only ends words`;
   }
-  const withArticle = words.filter((w) => w.length > 2 && w.startsWith(DEFINITE_ARTICLE)).length;
+  // Reversed "ال + noun" gives a word of 4+ letters ending in lam-alef. Real words that end in
+  // lam-alef are short ("يلا") or common adverbs, which are allow-listed.
+  const withArticle = words.filter((w) => w.length > 3 && w.startsWith(DEFINITE_ARTICLE)).length;
   const withReversedArticle = words.filter(
-    (w) => w.length > 2 && w.endsWith(REVERSED_ARTICLE),
+    (w) => w.length > 3 && w.endsWith(REVERSED_ARTICLE) && !REAL_LAM_ALEF_WORDS.has(w),
   ).length;
   if (withReversedArticle > withArticle) {
     return `${withReversedArticle} word(s) end in lam-alef but only ${withArticle} start with alef-lam`;

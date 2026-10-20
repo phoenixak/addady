@@ -7,7 +7,11 @@ import { reversedArabicReason } from '../packages/ui-ar/src/arabic-text.ts';
 
 const BINARY = /\.(png|jpg|ttf|otf|webp|svg)$/;
 // Tests deliberately contain reversed samples, so only the invisible-character check runs on them.
-const REVERSED_OK = [/\.test\.tsx?$/, /^pnpm-lock\.yaml$/];
+const REVERSED_OK = [
+  /\.test\.tsx?$/,
+  /^pnpm-lock\.yaml$/,
+  /^packages\/ui-ar\/src\/arabic-text\.ts$/,
+];
 
 // Invisible bidi/format characters ("Trojan Source"): never allowed in tracked files. Code that
 // needs one builds it with String.fromCodePoint().

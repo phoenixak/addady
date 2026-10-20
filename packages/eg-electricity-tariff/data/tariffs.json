@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-10-20",
+  "currency": "EGP",
+  "notes": [
+    "Rates are piasters per kWh (at most 2 decimals); fees are integer piasters per month.",
+    "A month's total kWh selects ONE band; each band prices its kWh from zero with its own rule.",
+    "Research, sources and confidence levels: docs/research/tariff.md"
+  ],
+  "versions": [
+    {
+      "id": "2024-08",
+      "validFrom": "2024-08",
+      "confidence": "high",
+      "residential": {
+        "bands": [
+          {
+            "upTo": 100,
+            "mode": "progressive",
+            "tiers": [
+              { "tier": 1, "upTo": 50, "rate": 68 },
+              { "tier": 2, "upTo": 100, "rate": 78 }
+            ]
+          },
+          {
+            "upTo": 650,
+            "mode": "progressive",
+            "tiers": [
+              { "tier": 3, "upTo": 200, "rate": 95 },
+              { "tier": 4, "upTo": 350, "rate": 155 },
+              { "tier": 5, "upTo": 650, "rate": 195 }
+            ]
+          },
+          { "upTo": 1000, "mode": "flat", "tier": 6, "rate": 210 },
+          { "upTo": null, "mode": "flat", "tier": 7, "rate": 223 }
+        ],
+        "serviceFees": [
+          { "upTo": 50, "fee": 100 },
+          { "upTo": 100, "fee": 200 },
+          { "upTo": 200, "fee": 600 },
+          { "upTo": 350, "fee": 1100 },
+          { "upTo": 650, "fee": 1500 },
+          { "upTo": 1000, "fee": 2500 },
+          { "upTo": null, "fee": 4000 }
+        ],
+        "zeroReadFee": 900
+      },
+      "coded": null,
+      "sources": ["https://egyptera.org/ar/TarrifAug2024.aspx"]
+    },
+    {
+      "id": "2026-04",
+      "validFrom": "2026-04",
+      "confidence": "high",
+      "residential": {
+        "bands": [
+          {
+            "upTo": 100,
+            "mode": "progressive",
+            "tiers": [
+              { "tier": 1, "upTo": 50, "rate": 68 },
+              { "tier": 2, "upTo": 100, "rate": 78 }
+            ]
+          },
+          {
+            "upTo": 650,
+            "mode": "progressive",
+            "tiers": [
+              { "tier": 3, "upTo": 200, "rate": 95 },
+              { "tier": 4, "upTo": 350, "rate": 155 },
+              { "tier": 5, "upTo": 650, "rate": 195 }
+            ]
+          },
+          { "upTo": 1000, "mode": "flat", "tier": 6, "rate": 210 },
+          { "upTo": null, "mode": "flat", "tier": 7, "rate": 258 }
+        ],
+        "serviceFees": [
+          { "upTo": 50, "fee": 100 },
+          { "upTo": 100, "fee": 200 },
+          { "upTo": 200, "fee": 600 },
+          { "upTo": 350, "fee": 1100 },
+          { "upTo": 650, "fee": 1500 },
+          { "upTo": 1000, "fee": 2500 },
+          { "upTo": null, "fee": 4000 }
+        ],
+        "zeroReadFee": 900
+      },
+      "coded": { "rate": 274, "confidence": "high" },
+      "sources": [
+        "https://egyptera.org/en/TarrifApril2026.aspx",
+        "https://www.elwatannews.com/news/details/8293997"
+      ]
+    },
+    {
+      "id": "2026-07",
+      "validFrom": "2026-07",
+      "confidence": "medium",
+      "residential": {
+        "bands": [
+          {
+            "upTo": 100,
+            "mode": "progressive",
+            "tiers": [
+              { "tier": 1, "upTo": 50, "rate": 68 },
+              { "tier": 2, "upTo": 100, "rate": 98 }
+            ]
+          },
+          {
+            "upTo": 650,
+            "mode": "progressive",
+            "tiers": [
+              { "tier": 3, "upTo": 200, "rate": 115 },
+              { "tier": 4, "upTo": 350, "rate": 173 },
+              { "tier": 5, "upTo": 650, "rate": 214 }
+            ]
+          },
+          { "upTo": 1000, "mode": "flat", "tier": 6, "rate": 241 },
+          { "upTo": null, "mode": "flat", "tier": 7, "rate": 274 }
+        ],
+        "serviceFees": [
+          { "upTo": 50, "fee": 100 },
+          { "upTo": 100, "fee": 200 },
+          { "upTo": 200, "fee": 600 },
+          { "upTo": 350, "fee": 1100 },
+          { "upTo": 650, "fee": 1500 },
+          { "upTo": 1000, "fee": 2500 },
+          { "upTo": null, "fee": 4000 }
+        ],
+        "zeroReadFee": 900
+      },
+      "coded": { "rate": 274, "confidence": "medium" },
+      "sources": [
+        "https://www.youm7.com/story/2026/8/1/%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D9%85%D8%B1%D9%81%D9%82-%D8%A7%D9%84%D9%83%D9%87%D8%B1%D8%A8%D8%A7%D8%A1-%D9%8A%D9%86%D8%B4%D8%B1-%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1-%D8%A7%D9%84%D8%B4%D8%B1%D8%A7%D8%A6%D8%AD-%D9%88%D9%86%D8%B3%D8%A8-%D8%AF%D8%B9%D9%85-%D8%AA%D8%AA%D8%AD%D9%85%D9%84%D9%87%D8%A7-%D8%A7%D9%84%D8%AF%D9%88%D9%84%D8%A9/7499635",
+        "https://www.masrawy.com/news/news_egypt/details/2026/8/1/3026220/",
+        "https://www.elbalad.news/7057875",
+        "https://www.egypttelegraph.com/article/266224/"
+      ]
+    }
+  ]
+}

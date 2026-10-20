@@ -1,0 +1,80 @@
+{
+  "name": "eg-electricity-tariff",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Egyptian residential electricity tariffs (EgyptERA) and an exact bill engine: tiers, cliffs, service fees, coded meters. Signed, sourced data.",
+  "type": "module",
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --coverage",
+    "gen": "node scripts/gen-data.mjs",
+    "build": "tsup"
+  },
+  "devDependencies": {
+    "@addady/config": "workspace:*",
+    "@types/node": "^24.0.0",
+    "@vitest/coverage-v8": "^5.0.5",
+    "fast-check": "^4.10.2",
+    "tsup": "^9.0.0",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5"
+  },
+  "files": [
+    "dist",
+    "data",
+    "LICENSE",
+    "README.md"
+  ],
+  "dependencies": {
+    "@noble/curves": "^2.4.0"
+  },
+  "keywords": [
+    "egypt",
+    "electricity",
+    "tariff",
+    "bill",
+    "kwh",
+    "egyptera",
+    "كهرباء",
+    "شرائح"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phoenixak/addady.git",
+    "directory": "packages/eg-electricity-tariff"
+  },
+  "homepage": "https://github.com/phoenixak/addady/tree/main/packages/eg-electricity-tariff#readme",
+  "bugs": {
+    "url": "https://github.com/phoenixak/addady/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "import": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/index.js"
+        },
+        "require": {
+          "types": "./dist/index.d.cts",
+          "default": "./dist/index.cjs"
+        }
+      },
+      "./data/tariffs.json": "./data/tariffs.json"
+    }
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,7 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Isolated installs (pnpm default) are supported by Expo since SDK 54.
+# Fallback if native autolinking breaks: uncomment the next line (ADR 002).
+# nodeLinker: hoisted

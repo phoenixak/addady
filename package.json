@@ -1,0 +1,26 @@
+{
+  "name": "addady",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "packageManager": "pnpm@10.34.5",
+  "engines": {
+    "node": ">=24.3.0"
+  },
+  "scripts": {
+    "typecheck": "pnpm -r --parallel typecheck",
+    "lint": "eslint .",
+    "test": "pnpm -r --filter \"./packages/**\" test",
+    "test:apps": "pnpm -r --filter \"./apps/**\" test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check:terms": "sh scripts/check-private-terms.sh",
+    "check:arabic": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-arabic-order.ts"
+  },
+  "devDependencies": {
+    "@addady/config": "workspace:*",
+    "eslint": "^10.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.0"
+  }
+}

@@ -1,0 +1,44 @@
+# dependencies
+node_modules/
+
+# Expo / Metro
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+.metro-health-check*
+
+# generated native folders (Continuous Native Generation)
+apps/*/android/
+apps/*/ios/
+.kotlin/
+
+# secrets: never in the repo (SANITIZE.md)
+.env
+.env.*
+!.env.example
+google-services.json
+GoogleService-Info.plist
+*.keystore
+*.jks
+*.p8
+*.p12
+*.pem
+*.key
+*.mobileprovision
+credentials.json
+gradle.properties
+local.properties
+
+# build / test output
+coverage/
+*.tsbuildinfo
+*.apk
+*.aab
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+npm-debug.*

@@ -1,0 +1,33 @@
+{
+  "name": "@addady/ui-ar",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Arabic-first UI kit: theme, RTL helpers, Arabic numerals and currency formatting, fonts.",
+  "license": "GPL-3.0-only",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./format": "./src/format.ts",
+    "./assets/*": "./assets/*",
+    "./arabic-text": "./src/arabic-text.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --coverage"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "devDependencies": {
+    "@addady/config": "workspace:*",
+    "@types/react": "~19.3.0",
+    "@vitest/coverage-v8": "^5.0.5",
+    "fast-check": "^4.10.2",
+    "react": "19.3.0",
+    "react-native": "0.88.0",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "@addady/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-only",
+  "exports": {
+    "./eslint": "./eslint.shared.mjs",
+    "./vitest": {
+      "types": "./vitest.preset.d.mts",
+      "default": "./vitest.preset.mjs"
+    },
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./expo/with-release-signing": "./expo/with-release-signing.cjs",
+    "./expo/with-windows-cmake": "./expo/with-windows-cmake.cjs"
+  },
+  "dependencies": {
+    "@eslint/js": "^10.0.1",
+    "globals": "^17.0.0",
+    "typescript-eslint": "^8.72.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=10",
+    "expo": "*"
+  },
+  "peerDependenciesMeta": {
+    "expo": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "expo": "~58.0.16"
+  }
+}

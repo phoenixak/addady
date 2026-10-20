@@ -1,0 +1,8 @@
+pnpm-lock.yaml
+coverage/
+dist/
+apps/*/android/
+apps/*/ios/
+*.md
+packages/eg-electricity-tariff/data/
+packages/eg-electricity-tariff/src/tariffs.data.ts

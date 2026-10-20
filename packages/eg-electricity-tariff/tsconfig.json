@@ -1,0 +1,8 @@
+{
+  "extends": "@addady/config/tsconfig.base.json",
+  "include": ["src", "vitest.config.ts"],
+  "compilerOptions": {
+    "types": ["node"],
+    "resolveJsonModule": true
+  }
+}

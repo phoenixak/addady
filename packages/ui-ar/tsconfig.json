@@ -1,0 +1,7 @@
+{
+  "extends": "@addady/config/tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx"
+  },
+  "include": ["src", "vitest.config.mts"]
+}

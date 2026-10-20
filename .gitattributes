@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.ttf binary
+*.png binary
+*.sh text eol=lf
+packages/eg-electricity-tariff/data/* text eol=lf

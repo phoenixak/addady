@@ -2,13 +2,14 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Linking } from 'react-native';
 
-import { setSetting } from '../db/repo';
-import { t } from '../i18n';
-import { exportCsv, restoreFromPicker, shareBackup } from '../services/backup';
-import { cancelAll, requestPermission } from '../services/notifications';
-import { useSettings } from '../settings';
-import { useCurrentHome, useTariffs } from '../state';
-import { Body, Button, Caption, Card, Choice, Heading, LinkRow, Screen } from '../ui';
+import { setSetting } from '../../db/repo';
+import { PLACE_ICONS, pricedClass } from '../../domain/place';
+import { t } from '../../i18n';
+import { exportCsv, restoreFromPicker, shareBackup } from '../../services/backup';
+import { cancelAll, requestPermission } from '../../services/notifications';
+import { useSettings } from '../../settings';
+import { useCurrentHome, useTariffs } from '../../state';
+import { Body, Button, Caption, Card, Choice, Heading, LinkRow, Screen } from '../../ui';
 
 const REPO = 'https://github.com/phoenixak/addady';
 
@@ -100,11 +101,16 @@ export default function Settings() {
       />
 
       <Heading>{t('settings.homes')}</Heading>
-      {homes.length > 1 ? (
+      {homes.length > 0 ? (
         <Choice
           value={home?.id ?? 0}
           onChange={(id) => void setSetting('currentHomeId', String(id))}
-          options={homes.map((h) => ({ value: h.id, label: h.name }))}
+          options={homes.map((h) => ({
+            value: h.id,
+            label: h.name,
+            hint: t(`classes.${pricedClass(h)}`),
+            icon: PLACE_ICONS[h.kind],
+          }))}
         />
       ) : null}
       <LinkRow label={t('settings.addHome')} onPress={() => router.push('/setup')} />

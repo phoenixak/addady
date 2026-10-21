@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { addRecharge } from '../db/repo';
 import { t } from '../i18n';
 import { useCurrentHome } from '../state';
-import { Body, Button, Field, Screen, parsePiasters } from '../ui';
+import { Body, Button, Field, Screen, parsePiasters, useToast } from '../ui';
 
 export default function Recharge() {
+  const toast = useToast();
   const { home } = useCurrentHome();
   const [amount, setAmount] = useState('');
   if (!home) return null;
@@ -18,6 +19,7 @@ export default function Recharge() {
     if (!piasters || error) return;
     await addRecharge({ homeId: home.id, at: Date.now(), amountPiasters: piasters });
     // The new balance comes from the meter screen, so go straight to a reading.
+    toast(t('common.saved'));
     router.replace('/reading');
   };
 

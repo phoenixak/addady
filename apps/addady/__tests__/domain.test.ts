@@ -9,7 +9,10 @@ import { homeStatus } from '../src/domain/status';
 const home = (over: Partial<Home> = {}): Home => ({
   id: 1,
   name: 'البيت',
+  kind: 'home',
+  customerClass: 'residential',
   meterType: 'postpaid',
+  powerFactor: null,
   governorate: 'cairo',
   meterMonthStartDay: 1,
   contractedLoadKW: null,

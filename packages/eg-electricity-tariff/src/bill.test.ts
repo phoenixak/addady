@@ -59,8 +59,11 @@ describe('bill: worked lines', () => {
     expect(bill(v2026_07, 0, { meterType: 'coded' }).energy).toBe(0);
   });
 
-  it('refuses coded meters on a version without a coded rate', () => {
-    expect(() => bill(v2024_08, 10, { meterType: 'coded' })).toThrow(/no coded-meter rate/);
+  it('refuses a class the version does not publish', () => {
+    const classes = { ...v2024_08.classes };
+    delete classes.coded;
+    const version: TariffVersion = { ...v2024_08, classes };
+    expect(() => bill(version, 10, { meterType: 'coded' })).toThrow(/has no coded prices/);
   });
 
   it('treats prepaid like postpaid tiers within the meter month', () => {
@@ -75,9 +78,11 @@ describe('bill: worked lines', () => {
   it('rounds fractional piasters half up once per line', () => {
     const version: TariffVersion = {
       ...v2026_07,
-      residential: {
-        ...v2026_07.residential,
-        bands: [{ upTo: null, mode: 'flat', tier: 1, rate: 87.36 }],
+      classes: {
+        residential: {
+          ...v2026_07.classes.residential!,
+          bands: [{ upTo: null, mode: 'flat', tier: 1, rate: 87.36 }],
+        },
       },
     };
     expect(bill(version, 1).energy).toBe(87); // 87.36
@@ -88,18 +93,20 @@ describe('bill: worked lines', () => {
   it('stops a progressive band at an unbounded last tier', () => {
     const version: TariffVersion = {
       ...v2026_07,
-      residential: {
-        ...v2026_07.residential,
-        bands: [
-          {
-            upTo: null,
-            mode: 'progressive',
-            tiers: [
-              { tier: 1, upTo: 10, rate: 100 },
-              { tier: 2, upTo: null, rate: 200 },
-            ],
-          },
-        ],
+      classes: {
+        residential: {
+          ...v2026_07.classes.residential!,
+          bands: [
+            {
+              upTo: null,
+              mode: 'progressive',
+              tiers: [
+                { tier: 1, upTo: 10, rate: 100 },
+                { tier: 2, upTo: null, rate: 200 },
+              ],
+            },
+          ],
+        },
       },
     };
     expect(bill(version, 15).energy).toBe(10 * 100 + 5 * 200);
@@ -159,7 +166,84 @@ describe('bill: properties for every bundled version', () => {
   });
 });
 
+describe('bill: other customer classes', () => {
+  const v2026_04 = versionById(bundledTariffs, '2026-04');
+
+  it('prices commercial bands from zero with the 3 pt/kWh stamp', () => {
+    // EgyptERA April 2026: 0-100 flat 162; fee 5 EGP; stamp 3 pt/kWh.
+    expect(bill(v2026_04, 100, { customerClass: 'commercial' })).toMatchObject({
+      customerClass: 'commercial',
+      bandIndex: 0,
+      energy: 16200,
+      serviceFee: 500,
+      stamps: 300,
+      total: 17000,
+    });
+    // 101-250: all kWh flat at 216.
+    expect(bill(v2026_04, 101, { customerClass: 'commercial' }).energy).toBe(101 * 216);
+    // 251-1000: 0-600 at 264, then 601-1000 at 274.
+    const b = bill(v2026_04, 700, { customerClass: 'commercial' });
+    expect(b.lines.map((l) => [l.tier, l.kWh, l.rate])).toEqual([
+      [3, 600, 264],
+      [4, 100, 274],
+    ]);
+    expect(b.total).toBe(600 * 264 + 100 * 274 + 2500 + 2100);
+    // > 1000: all kWh flat at 279, fee 40 EGP.
+    expect(bill(v2026_04, 1001, { customerClass: 'commercial' }).total).toBe(
+      1001 * 279 + 4000 + 3003,
+    );
+  });
+
+  it('charges the commercial zero-read fee', () => {
+    expect(bill(v2026_04, 0, { customerClass: 'commercial' }).total).toBe(900);
+  });
+
+  it('prices voltage classes flat with the industrial stamp of 0.6 pt per 10 kWh', () => {
+    const b = bill(v2026_04, 10000, { customerClass: 'mediumVoltage' });
+    expect(b.lines).toEqual([
+      { tier: 0, fromKWh: 1, toKWh: 10000, kWh: 10000, rate: 255, amount: 2550000 },
+    ]);
+    expect(b).toMatchObject({ serviceFee: 3500, stamps: 600, total: 2554100 });
+    // Rounds the stamp half up once: 0.06 pt x 25 kWh = 1.5 -> 2.
+    expect(bill(v2026_04, 25, { customerClass: 'lowVoltage' }).stamps).toBe(2);
+    expect(bill(v2026_04, 0, { customerClass: 'extraHighVoltage' }).total).toBe(3500);
+    expect(cliffs(v2026_04, { customerClass: 'highVoltage' })).toEqual([]);
+  });
+
+  it('uses the lower of the version and class confidence', () => {
+    expect(bill(v2026_04, 10, { customerClass: 'irrigationLowVoltage' }).confidence).toBe('medium');
+    expect(bill(v2026_07, 10, { customerClass: 'commercial' }).confidence).toBe('medium');
+  });
+
+  it('a coded meter type always uses the coded class', () => {
+    const b = bill(v2026_04, 10, { customerClass: 'commercial', meterType: 'coded' });
+    expect(b.customerClass).toBe('coded');
+    expect(bill(v2026_04, 10, { customerClass: 'coded' }).meterType).toBe('coded');
+  });
+
+  it('every class of every version is monotonic from 1 kWh', () => {
+    for (const v of versions) {
+      for (const customerClass of Object.keys(v.classes) as (keyof typeof v.classes)[]) {
+        fc.assert(
+          fc.property(
+            kWh.filter((k) => k >= 1),
+            (k) => bill(v, k + 1, { customerClass }).total >= bill(v, k, { customerClass }).total,
+          ),
+          { numRuns: 50 },
+        );
+      }
+    }
+  });
+});
+
 describe('cliffs', () => {
+  it('finds the commercial cliffs at 100, 250 and 1000 kWh', () => {
+    const v = versionById(bundledTariffs, '2026-04');
+    expect(cliffs(v, { customerClass: 'commercial' }).map((c) => c.atKWh)).toEqual([
+      100, 250, 1000,
+    ]);
+  });
+
   it('finds the three cliffs at 100, 650 and 1000 kWh', () => {
     const c = cliffs(v2026_07);
     expect(c.map((x) => x.atKWh)).toEqual([100, 650, 1000]);

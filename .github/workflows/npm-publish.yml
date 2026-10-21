@@ -1,0 +1,49 @@
+name: Publish eg-electricity-tariff
+
+# Push a tag like `tariff-v0.2.0` (matching packages/eg-electricity-tariff/package.json) to publish.
+# Uses npm trusted publishing (OIDC): no npm token is stored in the repository. Configure it once on
+# npmjs.com -> package settings -> Trusted publisher: GitHub Actions, phoenixak/addady,
+# workflow npm-publish.yml. Provenance is attached automatically.
+on:
+  push:
+    tags: ['tariff-v*']
+
+permissions:
+  contents: read
+  id-token: write # OIDC for trusted publishing + provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Tag matches the package version
+        working-directory: packages/eg-electricity-tariff
+        run: |
+          version=$(node -p "require('./package.json').version")
+          test "tariff-v$version" = "$GITHUB_REF_NAME" || {
+            echo "tag $GITHUB_REF_NAME does not match package version $version"; exit 1; }
+
+      - name: Test (100% coverage), check the data signature, build
+        run: |
+          pnpm --filter eg-electricity-tariff exec vitest run --coverage
+          pnpm --filter eg-electricity-tariff build
+
+      - name: Publish
+        working-directory: packages/eg-electricity-tariff
+        # pnpm pack applies publishConfig (dist entry points); npm publishes the tarball over OIDC.
+        run: |
+          npm install -g npm@11
+          pnpm pack --out package.tgz
+          npm publish package.tgz --access public --provenance

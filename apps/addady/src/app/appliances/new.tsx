@@ -7,7 +7,18 @@ import { FORM_FIELDS, estimateAppliance, type ApplianceKind } from '../../domain
 import { t } from '../../i18n';
 import { useFormat } from '../../settings';
 import { useCurrentHome } from '../../state';
-import { Body, Button, Card, Choice, Field, Heading, Row, Screen, parseNumber } from '../../ui';
+import {
+  Body,
+  Button,
+  Card,
+  Choice,
+  Field,
+  Heading,
+  Row,
+  Screen,
+  parseNumber,
+  useToast,
+} from '../../ui';
 
 const KINDS: ApplianceKind[] = [
   'ac',
@@ -21,6 +32,7 @@ const KINDS: ApplianceKind[] = [
 ];
 
 export default function NewAppliance() {
+  const toast = useToast();
   const { home } = useCurrentHome();
   const f = useFormat();
   const [kind, setKind] = useState<ApplianceKind>('ac');
@@ -43,6 +55,7 @@ export default function NewAppliance() {
       name: name.trim() || t(`appliances.kinds.${kind}`),
       params,
     });
+    toast(t('common.saved'));
     router.back();
   };
 

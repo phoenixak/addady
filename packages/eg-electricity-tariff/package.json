@@ -1,6 +1,6 @@
 {
   "name": "eg-electricity-tariff",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Egyptian residential electricity tariffs (EgyptERA) and an exact bill engine: tiers, cliffs, service fees, coded meters. Signed, sourced data.",
   "type": "module",

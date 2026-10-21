@@ -7,9 +7,10 @@ import { useFormat } from '../settings';
 import { useCurrentHome } from '../state';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { queries } from '../db/repo';
-import { Body, Button, Card, Field, Screen, parseNumber, parsePiasters } from '../ui';
+import { Body, Button, Card, Field, Screen, parseNumber, parsePiasters, useToast } from '../ui';
 
 export default function AddReading() {
+  const toast = useToast();
   const { home } = useCurrentHome();
   const { data: rows } = useLiveQuery(queries.readings(home?.id ?? -1), [home?.id]);
   const f = useFormat();
@@ -43,6 +44,7 @@ export default function AddReading() {
       monthKWh: prepaid ? value : null,
       balancePiasters: prepaid ? balancePt : null,
     });
+    toast(t('common.saved'));
     router.back();
   };
 

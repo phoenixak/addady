@@ -1,12 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-import { bill, bundledTariffs, versionById, type MeterType } from './index';
+import { bill, bundledTariffs, versionById, type CustomerClass, type MeterType } from './index';
 
 interface GoldenCase {
   id: string;
   version: string;
   kWh: number;
+  customerClass?: CustomerClass;
   meterType: MeterType;
   compare: 'total' | 'energy';
   expectedEGP: number;
@@ -20,7 +21,10 @@ const golden: { cases: GoldenCase[] } = JSON.parse(
 );
 
 const actualEGP = (c: GoldenCase) => {
-  const b = bill(versionById(bundledTariffs, c.version), c.kWh, { meterType: c.meterType });
+  const b = bill(versionById(bundledTariffs, c.version), c.kWh, {
+    customerClass: c.customerClass,
+    meterType: c.meterType,
+  });
   return (c.compare === 'total' ? b.total : b.energy) / 100;
 };
 
@@ -29,10 +33,16 @@ describe('golden cases from public sources', () => {
     for (const c of golden.cases) expect(c.source, c.id).toMatch(/^https:\/\//);
   });
 
-  it('covers every tier in at least one verified case', () => {
+  it('covers every residential tier in at least one verified case', () => {
     const tiers = new Set<number>();
-    for (const c of golden.cases.filter((g) => g.status === 'verified')) {
-      const b = bill(versionById(bundledTariffs, c.version), c.kWh, { meterType: c.meterType });
+    const residential = golden.cases.filter(
+      (g) => g.status === 'verified' && (g.customerClass ?? 'residential') === 'residential',
+    );
+    for (const c of residential) {
+      const b = bill(versionById(bundledTariffs, c.version), c.kWh, {
+        customerClass: c.customerClass,
+        meterType: c.meterType,
+      });
       b.lines.forEach((l) => tiers.add(l.tier));
     }
     expect([...tiers].sort()).toEqual([1, 2, 3, 4, 5, 6, 7]);

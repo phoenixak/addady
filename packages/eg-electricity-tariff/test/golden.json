@@ -1,5 +1,5 @@
 {
-  "description": "Golden cases from public sources (docs/research/tariff.md). 'expectedEGP' is what the source states; 'tolerance' covers sources that round to whole pounds or say 'approximately'.",
+  "description": "Golden cases from public sources (docs/research/tariff.md). 'expectedEGP' is what the source states; 'tolerance' covers sources that round to whole pounds or say 'approximately'. 'regulator-table' cases are hand-computed from the regulator's published table (no official worked example was found for these classes).",
   "cases": [
     {
       "id": "eehc-2026-04-100kwh",
@@ -181,6 +181,104 @@
       "status": "verified",
       "source": "https://www.youm7.com/story/2026/8/1/%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D9%85%D8%B1%D9%81%D9%82-%D8%A7%D9%84%D9%83%D9%87%D8%B1%D8%A8%D8%A7%D8%A1-%D9%8A%D9%86%D8%B4%D8%B1-%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1-%D8%A7%D9%84%D8%B4%D8%B1%D8%A7%D8%A6%D8%AD-%D9%88%D9%86%D8%B3%D8%A8-%D8%AF%D8%B9%D9%85-%D8%AA%D8%AA%D8%AD%D9%85%D9%84%D9%87%D8%A7-%D8%A7%D9%84%D8%AF%D9%88%D9%84%D8%A9/7499635",
       "note": "No subsidy: all kWh at tier 7."
+    },
+    {
+      "id": "era-2026-04-commercial-90kwh",
+      "version": "2026-04",
+      "customerClass": "commercial",
+      "kWh": 90,
+      "meterType": "postpaid",
+      "compare": "energy",
+      "expectedEGP": 145.8,
+      "tolerance": 0.01,
+      "kind": "regulator-table",
+      "status": "verified",
+      "source": "https://egyptera.org/en/TarrifApril2026.aspx",
+      "note": "0-100 flat: 90 x 1.62."
+    },
+    {
+      "id": "era-2026-04-commercial-200kwh",
+      "version": "2026-04",
+      "customerClass": "commercial",
+      "kWh": 200,
+      "meterType": "postpaid",
+      "compare": "energy",
+      "expectedEGP": 432,
+      "tolerance": 0.01,
+      "kind": "regulator-table",
+      "status": "verified",
+      "source": "https://egyptera.org/en/TarrifApril2026.aspx",
+      "note": "101-250 flat from zero: 200 x 2.16."
+    },
+    {
+      "id": "era-2026-04-commercial-700kwh",
+      "version": "2026-04",
+      "customerClass": "commercial",
+      "kWh": 700,
+      "meterType": "postpaid",
+      "compare": "energy",
+      "expectedEGP": 1858,
+      "tolerance": 0.01,
+      "kind": "regulator-table",
+      "status": "verified",
+      "source": "https://egyptera.org/en/TarrifApril2026.aspx",
+      "note": "251-1000: 600 x 2.64 + 100 x 2.74."
+    },
+    {
+      "id": "era-2026-04-commercial-1500kwh",
+      "version": "2026-04",
+      "customerClass": "commercial",
+      "kWh": 1500,
+      "meterType": "postpaid",
+      "compare": "energy",
+      "expectedEGP": 4185,
+      "tolerance": 0.01,
+      "kind": "regulator-table",
+      "status": "verified",
+      "source": "https://egyptera.org/en/TarrifApril2026.aspx",
+      "note": ">1000 flat from zero: 1500 x 2.79."
+    },
+    {
+      "id": "era-2026-04-mv-50000kwh",
+      "version": "2026-04",
+      "customerClass": "mediumVoltage",
+      "kWh": 50000,
+      "meterType": "postpaid",
+      "compare": "energy",
+      "expectedEGP": 127500,
+      "tolerance": 0.01,
+      "kind": "regulator-table",
+      "status": "verified",
+      "source": "https://egyptera.org/en/TarrifApril2026.aspx",
+      "note": "Medium voltage, other users: 2.55 per kWh."
+    },
+    {
+      "id": "era-2024-08-commercial-700kwh",
+      "version": "2024-08",
+      "customerClass": "commercial",
+      "kWh": 700,
+      "meterType": "postpaid",
+      "compare": "energy",
+      "expectedEGP": 1547,
+      "tolerance": 0.01,
+      "kind": "regulator-table",
+      "status": "verified",
+      "source": "https://egyptera.org/ar/TarrifAug2024.aspx",
+      "note": "600 x 2.20 + 100 x 2.27."
+    },
+    {
+      "id": "era-2024-08-ehv-100000kwh",
+      "version": "2024-08",
+      "customerClass": "extraHighVoltage",
+      "kWh": 100000,
+      "meterType": "postpaid",
+      "compare": "energy",
+      "expectedEGP": 160000,
+      "tolerance": 0.01,
+      "kind": "regulator-table",
+      "status": "verified",
+      "source": "https://egyptera.org/ar/TarrifAug2024.aspx",
+      "note": "Extra-high voltage: 1.60 per kWh."
     }
   ]
 }

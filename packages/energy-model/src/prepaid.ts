@@ -7,7 +7,7 @@
 // - At zero balance the meter keeps supplying during grace (Fridays, confirmed holidays,
 //   17:00-10:00 Cairo time) and cuts at the next non-grace instant.
 // Notifications must use the EARLIEST plausible time (P10), never the median.
-import { bill, type Piasters, type TariffVersion } from 'eg-electricity-tariff';
+import { bill, type CustomerClass, type Piasters, type TariffVersion } from 'eg-electricity-tariff';
 
 import { range, seededRandom, type Range } from './random';
 import {
@@ -38,6 +38,8 @@ export interface PrepaidInput {
   meterMonthStartDay: number;
   /** Tariff version for a consumption month 'YYYY-MM' (handles changes across months). */
   tariffFor: (month: string) => TariffVersion;
+  /** Default 'residential' (shops and offices have prepaid meters too). */
+  customerClass?: CustomerClass;
   model: RateModel;
   grace?: GraceRules;
   profile?: HourlyProfile;
@@ -89,7 +91,7 @@ function timeline(now: Date, hours: number, startDay: number): HourSlot[] {
 }
 
 /** Marginal cost of kWh n -> n + 1, memoised per tariff version. */
-function marginalCosts() {
+function marginalCosts(customerClass: CustomerClass) {
   const cache = new Map<TariffVersion, number[]>();
   return (version: TariffVersion, n: number): number => {
     let costs = cache.get(version);
@@ -99,7 +101,8 @@ function marginalCosts() {
     }
     while (costs.length <= n) {
       const k = costs.length;
-      costs.push(bill(version, k + 1).energy - (k === 0 ? 0 : bill(version, k).energy));
+      const energy = (n: number) => bill(version, n, { customerClass }).energy;
+      costs.push(energy(k + 1) - energy(k));
     }
     return costs[n]!;
   };
@@ -126,6 +129,7 @@ export function simulateRunOut(input: PrepaidInput): PrepaidResult {
     runs = 500,
     seed = 1,
     horizonDays = 62,
+    customerClass = 'residential',
   } = input;
   if (balance <= 0) {
     const cut = nextCutAllowed(now, grace);
@@ -134,7 +138,7 @@ export function simulateRunOut(input: PrepaidInput): PrepaidResult {
   }
 
   const slots = timeline(now, Math.ceil(horizonDays * 24), meterMonthStartDay);
-  const cost = marginalCosts();
+  const cost = marginalCosts(customerClass);
   const random = seededRandom(seed);
   const zeros: number[] = [];
 

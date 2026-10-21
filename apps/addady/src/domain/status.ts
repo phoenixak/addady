@@ -27,6 +27,7 @@ import {
 } from '@addady/energy-model';
 
 import type { Home, ReadingRow } from '../db/schema';
+import { billOptions, hasBands, pricedClass } from './place';
 import { cumulativeReadings, interpolate } from './series';
 
 const DAY_MS = 86_400_000;
@@ -74,6 +75,8 @@ export function homeStatus({
   runs = 400,
 }: StatusInput): HomeStatus {
   const meterType: MeterType = home.meterType;
+  const options = billOptions(home);
+  const banded = hasBands(pricedClass(home));
   const monthStart = meterMonthStart(now, home.meterMonthStartDay);
   const monthEnd = nextMeterMonthStart(now, home.meterMonthStartDay);
   const daysLeft = (monthEnd.getTime() - now.getTime()) / DAY_MS;
@@ -113,15 +116,15 @@ export function homeStatus({
     kWhSoFarEstimated = atStart.extrapolated || series.length < 2;
   }
 
-  const current = kWhSoFar === null ? null : bill(version, Math.round(kWhSoFar), { meterType });
+  const current = kWhSoFar === null ? null : bill(version, Math.round(kWhSoFar), options);
   const projection =
     kWhSoFar === null
       ? null
-      : projectBill(version, projectMonthKWh({ kWhSoFar, now, monthEnd, model, runs }), meterType);
+      : projectBill(version, projectMonthKWh({ kWhSoFar, now, monthEnd, model, runs }), options);
   const cliff =
-    kWhSoFar === null || meterType === 'coded' ? null : nextCliff(version, Math.floor(kWhSoFar));
+    kWhSoFar === null || !banded ? null : nextCliff(version, Math.floor(kWhSoFar), options);
   const budget =
-    kWhSoFar === null || meterType === 'coded' ? null : cliffBudget(version, kWhSoFar, daysLeft);
+    kWhSoFar === null || !banded ? null : cliffBudget(version, kWhSoFar, daysLeft, options);
 
   const withBalance = [...readings]
     .filter((r) => r.balancePiasters !== null)
@@ -140,6 +143,7 @@ export function homeStatus({
       kWhThisMeterMonth: monthKWhAtRead,
       meterMonthStartDay: home.meterMonthStartDay,
       tariffFor: (m) => versionFor(tariffs, m),
+      customerClass: home.customerClass,
       model,
       grace,
       runs,
@@ -161,11 +165,15 @@ export function homeStatus({
     model,
     daysSinceLastReading,
     tariffId: version.id,
-    tariffConfidence: version.confidence,
+    tariffConfidence: current?.confidence ?? bill(version, 1, options).confidence,
   };
 }
 
-/** All cliffs of the tariff in force for the month (for the tier "staircase" bar). */
-export function monthCliffs(tariffs: TariffFile, monthStart: Date): Cliff[] {
-  return cliffs(versionFor(tariffs, consumptionMonth(monthStart)));
+/** All cliffs of the place's tariff in force for the month (for the tier "staircase" bar). */
+export function monthCliffs(
+  tariffs: TariffFile,
+  monthStart: Date,
+  place: Pick<Home, 'customerClass' | 'meterType'>,
+): Cliff[] {
+  return cliffs(versionFor(tariffs, consumptionMonth(monthStart)), billOptions(place));
 }

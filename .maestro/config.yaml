@@ -1,0 +1,17 @@
+# Run order: flows that need a prepaid home run right after it is created.
+flows:
+  - onboarding-shop.yaml
+  - onboarding-factory.yaml
+  - onboarding-prepaid.yaml
+  - bill-check.yaml
+  - rights.yaml
+  - explain-recharge.yaml
+executionOrder:
+  continueOnFailure: false
+  flowsOrder:
+    - onboarding-shop
+    - onboarding-factory
+    - onboarding-prepaid
+    - bill-check
+    - rights
+    - explain-recharge

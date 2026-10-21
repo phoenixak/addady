@@ -1,0 +1,11 @@
+# "اعرف حقك": a procedure card shows its steps and sources. Runs after onboarding-prepaid.
+appId: com.fynxforge.addady
+---
+- launchApp
+- tapOn:
+    id: 'tab-rights'
+- assertVisible: 'الخط الساخن 121'
+- tapOn: 'اطلب اختبار العداد'
+- assertVisible: 'العداد بيتختبر في المعمل المركزي.'
+- scrollUntilVisible:
+    element: 'المصادر'

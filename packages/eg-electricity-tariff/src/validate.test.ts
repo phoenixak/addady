@@ -38,15 +38,27 @@ describe('parseTariffFile', () => {
     expect(f.notes?.length).toBeGreaterThan(0);
   });
 
+  it('keeps optional fields only when present', () => {
+    const f = parseTariffFile(
+      mutate((x) => {
+        delete x.versions[0].classes.residential.zeroReadFee;
+        delete x.versions[0].classes.commercial.stamps.perKWh;
+      }),
+    );
+    expect(f.versions[0]!.classes.residential!.zeroReadFee).toBeUndefined();
+    expect(f.versions[0]!.classes.commercial!.stamps).toEqual({});
+    expect(f.versions[0]!.classes.residential!.stamps).toBeUndefined();
+  });
+
   it('accepts a file without notes', () => {
     expect(parseTariffFile(mutate((f) => delete f.notes)).notes).toBeUndefined();
   });
 
   const v0 = '$.versions[0]';
-  const bands = `${v0}.residential.bands`;
+  const bands = `${v0}.classes.residential.bands`;
   const cases: [string, (f: any) => void, string][] = [
     ['non-object root', () => undefined, '$'],
-    ['schema version', (f) => (f.schemaVersion = 2), '$.schemaVersion'],
+    ['schema version', (f) => (f.schemaVersion = 1), '$.schemaVersion'],
     ['currency', (f) => (f.currency = 'USD'), '$.currency'],
     ['updated', (f) => (f.updated = 1), '$.updated'],
     ['empty versions', (f) => (f.versions = []), '$.versions'],
@@ -54,93 +66,122 @@ describe('parseTariffFile', () => {
     ['empty id', (f) => (f.versions[0].id = ''), `${v0}.id`],
     ['bad validFrom', (f) => (f.versions[0].validFrom = '2026-13'), `${v0}.validFrom`],
     ['bad confidence', (f) => (f.versions[0].confidence = 'sure'), `${v0}.confidence`],
-    ['residential missing', (f) => (f.versions[0].residential = null), `${v0}.residential`],
-    ['bands not array', (f) => (f.versions[0].residential.bands = {}), bands],
-    ['empty bands', (f) => (f.versions[0].residential.bands = []), bands],
-    ['band not object', (f) => (f.versions[0].residential.bands[0] = 3), `${bands}[0]`],
-    ['band mode', (f) => (f.versions[0].residential.bands[0].mode = 'tiered'), `${bands}[0].mode`],
+    [
+      'residential missing',
+      (f) => (f.versions[0].classes.residential = null),
+      `${v0}.classes.residential`,
+    ],
+    [
+      'residential absent',
+      (f) => delete f.versions[0].classes.residential,
+      `${v0}.classes.residential`,
+    ],
+    ['bands not array', (f) => (f.versions[0].classes.residential.bands = {}), bands],
+    ['empty bands', (f) => (f.versions[0].classes.residential.bands = []), bands],
+    ['band not object', (f) => (f.versions[0].classes.residential.bands[0] = 3), `${bands}[0]`],
+    [
+      'band mode',
+      (f) => (f.versions[0].classes.residential.bands[0].mode = 'tiered'),
+      `${bands}[0].mode`,
+    ],
     [
       'tiers not array',
-      (f) => (f.versions[0].residential.bands[0].tiers = null),
+      (f) => (f.versions[0].classes.residential.bands[0].tiers = null),
       `${bands}[0].tiers`,
     ],
     [
       'tier not object',
-      (f) => (f.versions[0].residential.bands[0].tiers[0] = 'x'),
+      (f) => (f.versions[0].classes.residential.bands[0].tiers[0] = 'x'),
       `${bands}[0].tiers[0]`,
     ],
     [
       'tier number',
-      (f) => (f.versions[0].residential.bands[0].tiers[0].tier = 0),
+      (f) => (f.versions[0].classes.residential.bands[0].tiers[0].tier = 0),
       `${bands}[0].tiers[0].tier`,
     ],
     [
       'negative rate',
-      (f) => (f.versions[0].residential.bands[0].tiers[0].rate = -1),
+      (f) => (f.versions[0].classes.residential.bands[0].tiers[0].rate = -1),
       `${bands}[0].tiers[0].rate`,
     ],
     [
       'rate decimals',
-      (f) => (f.versions[0].residential.bands[0].tiers[0].rate = 68.123),
+      (f) => (f.versions[0].classes.residential.bands[0].tiers[0].rate = 68.123),
       `${bands}[0].tiers[0].rate`,
     ],
     [
       'tier upTo zero',
-      (f) => (f.versions[0].residential.bands[0].tiers[0].upTo = 0),
+      (f) => (f.versions[0].classes.residential.bands[0].tiers[0].upTo = 0),
       `${bands}[0].tiers[0].upTo`,
     ],
     [
       'tiers not increasing',
-      (f) => (f.versions[0].residential.bands[0].tiers[1].upTo = 50),
+      (f) => (f.versions[0].classes.residential.bands[0].tiers[1].upTo = 50),
       `${bands}[0].tiers[1].upTo`,
     ],
     [
       'open tier not last',
-      (f) => (f.versions[0].residential.bands[0].tiers[0].upTo = null),
+      (f) => (f.versions[0].classes.residential.bands[0].tiers[0].upTo = null),
       `${bands}[0].tiers[0].upTo`,
     ],
     [
       'last tier != band',
-      (f) => (f.versions[0].residential.bands[0].tiers[1].upTo = 99),
+      (f) => (f.versions[0].classes.residential.bands[0].tiers[1].upTo = 99),
       `${bands}[0].tiers`,
     ],
     [
       'flat band tier',
-      (f) => (f.versions[0].residential.bands[2].tier = 'six'),
+      (f) => (f.versions[0].classes.residential.bands[2].tier = 'six'),
       `${bands}[2].tier`,
     ],
     [
       'bands not open-ended',
-      (f) => (f.versions[0].residential.bands[3].upTo = 5000),
+      (f) => (f.versions[0].classes.residential.bands[3].upTo = 5000),
       `${bands}[3].upTo`,
     ],
     [
       'fees not array',
-      (f) => (f.versions[0].residential.serviceFees = 1),
-      `${v0}.residential.serviceFees`,
+      (f) => (f.versions[0].classes.residential.serviceFees = 1),
+      `${v0}.classes.residential.serviceFees`,
     ],
     [
       'fee not object',
-      (f) => (f.versions[0].residential.serviceFees[0] = 1),
-      `${v0}.residential.serviceFees[0]`,
+      (f) => (f.versions[0].classes.residential.serviceFees[0] = 1),
+      `${v0}.classes.residential.serviceFees[0]`,
     ],
     [
       'fee fractional',
-      (f) => (f.versions[0].residential.serviceFees[0].fee = 1.5),
-      `${v0}.residential.serviceFees[0].fee`,
+      (f) => (f.versions[0].classes.residential.serviceFees[0].fee = 1.5),
+      `${v0}.classes.residential.serviceFees[0].fee`,
     ],
     [
       'zero-read fee',
-      (f) => (f.versions[0].residential.zeroReadFee = -9),
-      `${v0}.residential.zeroReadFee`,
+      (f) => (f.versions[0].classes.residential.zeroReadFee = -9),
+      `${v0}.classes.residential.zeroReadFee`,
     ],
-    ['coded not object', (f) => (f.versions[1].coded = 274), '$.versions[1].coded'],
+    ['classes not object', (f) => (f.versions[0].classes = []), `${v0}.classes`],
+    ['unknown class', (f) => (f.versions[0].classes.industry = {}), `${v0}.classes.industry`],
+    ['class not object', (f) => (f.versions[1].classes.coded = 274), '$.versions[1].classes.coded'],
     [
-      'coded confidence',
-      (f) => (f.versions[1].coded.confidence = 'x'),
-      '$.versions[1].coded.confidence',
+      'class confidence',
+      (f) => (f.versions[1].classes.coded.confidence = 'x'),
+      '$.versions[1].classes.coded.confidence',
     ],
-    ['coded rate', (f) => (f.versions[1].coded.rate = 'x'), '$.versions[1].coded.rate'],
+    [
+      'stamps not object',
+      (f) => (f.versions[1].classes.commercial.stamps = 3),
+      '$.versions[1].classes.commercial.stamps',
+    ],
+    [
+      'stamp per kWh',
+      (f) => (f.versions[1].classes.commercial.stamps.perKWh = -3),
+      '$.versions[1].classes.commercial.stamps.perKWh',
+    ],
+    [
+      'stamp per 10 kWh',
+      (f) => (f.versions[1].classes.mediumVoltage.stamps.per10KWh = 'x'),
+      '$.versions[1].classes.mediumVoltage.stamps.per10KWh',
+    ],
     ['http source', (f) => (f.versions[0].sources = ['http://example.com']), `${v0}.sources`],
     ['sources missing', (f) => delete f.versions[0].sources, `${v0}.sources`],
     [

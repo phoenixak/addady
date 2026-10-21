@@ -2,11 +2,24 @@
 // Money is integer piasters; instants are epoch milliseconds (UTC).
 import { sql } from 'drizzle-orm';
 import { index, integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { CUSTOMER_CLASSES } from 'eg-electricity-tariff';
 
+/** What the user picked in "مين إنت؟"; it sets the customer class and the defaults. */
+export const PLACE_KINDS = ['home', 'shop', 'office', 'factory', 'farm'] as const;
+export type PlaceKind = (typeof PLACE_KINDS)[number];
+
+/** A metered place: a home, shop, office, factory or farm (the table keeps its v1 name). */
 export const homes = sqliteTable('homes', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
+  kind: text('kind', { enum: PLACE_KINDS }).notNull().default('home'),
+  /** EgyptERA customer class that prices this meter (eg-electricity-tariff). */
+  customerClass: text('customer_class', { enum: CUSTOMER_CLASSES })
+    .notNull()
+    .default('residential'),
   meterType: text('meter_type', { enum: ['postpaid', 'prepaid', 'coded'] }).notNull(),
+  /** Annual average power factor from the bill (factories), if known. */
+  powerFactor: real('power_factor'),
   governorate: text('governorate').notNull(),
   /** Day of month (1-28) when the meter resets tiers (prepaid) or the reading cycle starts. */
   meterMonthStartDay: integer('meter_month_start_day').notNull().default(1),

@@ -10,7 +10,7 @@ import {
   waterHeater,
   type Estimate,
 } from '@addady/energy-model';
-import { bill, type MeterType, type TariffVersion } from 'eg-electricity-tariff';
+import { bill, type BillOptions, type TariffVersion } from 'eg-electricity-tariff';
 
 import type { ApplianceRow } from '../db/schema';
 
@@ -113,11 +113,11 @@ export function priceSaving(
   monthKWh: number,
   kWhPerDay: number,
   days: number,
-  meterType: MeterType,
+  options: BillOptions,
 ): Saving {
   const saved = Math.max(0, kWhPerDay * days);
-  const before = bill(version, Math.round(monthKWh), { meterType });
-  const after = bill(version, Math.max(0, Math.round(monthKWh - saved)), { meterType });
+  const before = bill(version, Math.round(monthKWh), options);
+  const after = bill(version, Math.max(0, Math.round(monthKWh - saved)), options);
   return {
     kWhPerMonth: saved,
     piastersPerMonth: before.total - after.total,

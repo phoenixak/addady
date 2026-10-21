@@ -53,7 +53,9 @@ describe('projectBill', () => {
   });
 
   it('supports coded meters', () => {
-    expect(projectBill(v, { p10: 10, p50: 10, p90: 10 }, 'coded').total.p50).toBe(2740 + 100);
+    expect(projectBill(v, { p10: 10, p50: 10, p90: 10 }, { meterType: 'coded' }).total.p50).toBe(
+      2740 + 100,
+    );
   });
 });
 

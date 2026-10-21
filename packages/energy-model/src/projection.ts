@@ -2,7 +2,7 @@
 import {
   bill,
   nextCliff,
-  type MeterType,
+  type BillOptions,
   type Piasters,
   type TariffVersion,
 } from 'eg-electricity-tariff';
@@ -49,9 +49,9 @@ export interface BillRange {
 export function projectBill(
   version: TariffVersion,
   kWh: Range,
-  meterType: MeterType = 'postpaid',
+  options: BillOptions = {},
 ): BillRange {
-  const at = (k: number) => bill(version, Math.round(k), { meterType }).total;
+  const at = (k: number) => bill(version, Math.round(k), options).total;
   return { kWh, total: { p10: at(kWh.p10), p50: at(kWh.p50), p90: at(kWh.p90) } };
 }
 
@@ -72,10 +72,10 @@ export function cliffBudget(
   version: TariffVersion,
   kWhSoFar: number,
   daysLeft: number,
-  meterType: MeterType = 'postpaid',
+  options: BillOptions = {},
 ): CliffBudget | null {
   const used = Math.floor(kWhSoFar);
-  const cliff = nextCliff(version, used, { meterType });
+  const cliff = nextCliff(version, used, options);
   if (!cliff || daysLeft <= 0) return null;
   return { atKWh: cliff.atKWh, jump: cliff.jump, kWhPerDay: (cliff.atKWh - kWhSoFar) / daysLeft };
 }

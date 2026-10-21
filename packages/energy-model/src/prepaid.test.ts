@@ -36,6 +36,13 @@ describe('simulateRunOut', () => {
     expect(r.shareBeyondHorizon).toBe(0);
   });
 
+  it('prices a shop meter with the commercial bands', () => {
+    // 2026-07 commercial: 0-100 kWh flat 162 pt -> 50 EGP lasts 30.9 kWh (3.09 days at 10/day).
+    const r = simulateRunOut(base({ customerClass: 'commercial' }));
+    const expected = base({}).now.getTime() + 3.09 * 24 * HOUR;
+    expect(Math.abs(r.zeroAt!.p50.getTime() - expected)).toBeLessThan(2 * HOUR);
+  });
+
   describe('cuts at the next non-grace instant (from Monday 10:00 at 10 kWh/day, 68 pt/kWh)', () => {
     const monday = cairoTime(2026, 10, 12, 10);
 

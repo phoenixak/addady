@@ -63,6 +63,7 @@ export default function BillCheckScreen() {
           kWh: k,
           billedPiasters: billed,
           meterType: home.meterType,
+          customerClass: home.customerClass,
           otherChargesPiasters: home.otherChargesPiasters,
         }),
       );

@@ -2,9 +2,13 @@ import type {
   Band,
   Bill,
   BillLine,
+  ClassTariff,
+  Confidence,
+  CustomerClass,
   FeeStep,
   MeterType,
   Piasters,
+  Stamps,
   TariffFile,
   TariffVersion,
 } from './types';
@@ -13,6 +17,16 @@ import type {
 function lineAmount(kWh: number, rate: number): Piasters {
   const centiPiasters = kWh * Math.round(rate * 100);
   return Math.floor((centiPiasters + 50) / 100);
+}
+
+/** Consumption stamp in integer piasters, rounded half up once. */
+function stampAmount(stamps: Stamps | undefined, kWh: number): Piasters {
+  if (!stamps) return 0;
+  // Thousandths of a piaster: perKWh per kWh, per10KWh per 10 kWh.
+  const milli =
+    kWh * Math.round((stamps.perKWh ?? 0) * 100) * 10 +
+    kWh * Math.round((stamps.per10KWh ?? 0) * 100);
+  return Math.floor((milli + 500) / 1000);
 }
 
 function assertKWh(kWh: number): void {
@@ -25,10 +39,38 @@ function within(upTo: number | null, kWh: number): boolean {
   return upTo === null || kWh <= upTo;
 }
 
+const RANK: Record<Confidence, number> = { low: 0, medium: 1, high: 2 };
+
+function lowest(a: Confidence, b: Confidence): Confidence {
+  return RANK[a] <= RANK[b] ? a : b;
+}
+
+export interface BillOptions {
+  /** Default 'residential'; a 'coded' meter type always uses the coded class. */
+  customerClass?: CustomerClass;
+  meterType?: MeterType;
+}
+
+function resolveClass(options: BillOptions): CustomerClass {
+  if (options.meterType === 'coded') return 'coded';
+  return options.customerClass ?? 'residential';
+}
+
+/** The prices for one customer class, or an error if the version doesn't publish them. */
+export function classTariff(version: TariffVersion, customerClass: CustomerClass): ClassTariff {
+  const tariff = version.classes[customerClass];
+  if (!tariff) throw new Error(`tariff ${version.id} has no ${customerClass} prices`);
+  return tariff;
+}
+
 /** The band that prices a month with this total consumption. */
-export function bandFor(version: TariffVersion, kWh: number): { band: Band; index: number } {
+export function bandFor(
+  version: TariffVersion,
+  kWh: number,
+  options: BillOptions = {},
+): { band: Band; index: number } {
   assertKWh(kWh);
-  const bands = version.residential.bands;
+  const { bands } = classTariff(version, resolveClass(options));
   const index = bands.findIndex((b) => within(b.upTo, kWh));
   // parseTariffFile guarantees the last band is unbounded, so index is never -1.
   return { band: bands[index]!, index };
@@ -38,7 +80,7 @@ function feeFor(steps: FeeStep[], kWh: number): Piasters {
   return steps.find((s) => within(s.upTo, kWh))!.fee;
 }
 
-function residentialLines(band: Band, kWh: number): BillLine[] {
+function bandLines(band: Band, kWh: number): BillLine[] {
   if (band.mode === 'flat') {
     return [
       {
@@ -70,79 +112,51 @@ function residentialLines(band: Band, kWh: number): BillLine[] {
   return lines;
 }
 
-export interface BillOptions {
-  meterType?: MeterType;
-}
-
 /**
  * The expected bill for one month's total consumption under one tariff version.
- * Prepaid meters use the residential tiers within the meter's own month.
+ * Prepaid meters use the same prices within the meter's own month.
  */
 export function bill(version: TariffVersion, kWh: number, options: BillOptions = {}): Bill {
   assertKWh(kWh);
-  const meterType = options.meterType ?? 'postpaid';
-  const { residential } = version;
-
-  if (meterType === 'coded') {
-    if (!version.coded) throw new Error(`tariff ${version.id} has no coded-meter rate`);
-    const lines =
-      kWh === 0
-        ? []
-        : [
-            {
-              tier: 0,
-              fromKWh: 1,
-              toKWh: kWh,
-              kWh,
-              rate: version.coded.rate,
-              amount: lineAmount(kWh, version.coded.rate),
-            },
-          ];
-    const energy = lines.reduce((s, l) => s + l.amount, 0);
-    // No separate coded-meter fee is published; the residential schedule is the best estimate (low confidence).
-    const serviceFee = feeFor(residential.serviceFees, kWh);
-    return {
-      versionId: version.id,
-      meterType,
-      kWh,
-      bandIndex: -1,
-      lines,
-      energy,
-      serviceFee,
-      total: energy + serviceFee,
-      confidence: 'low',
-    };
-  }
+  const customerClass = resolveClass(options);
+  const tariff = classTariff(version, customerClass);
+  const meterType = options.meterType ?? (customerClass === 'coded' ? 'coded' : 'postpaid');
+  const confidence = lowest(version.confidence, tariff.confidence);
 
   if (kWh === 0) {
-    const serviceFee = residential.zeroReadFee;
+    const serviceFee = tariff.zeroReadFee ?? tariff.serviceFees[0]!.fee;
     return {
       versionId: version.id,
+      customerClass,
       meterType,
       kWh,
       bandIndex: -1,
       lines: [],
       energy: 0,
       serviceFee,
+      stamps: 0,
       total: serviceFee,
-      confidence: version.confidence,
+      confidence,
     };
   }
 
-  const { band, index } = bandFor(version, kWh);
-  const lines = residentialLines(band, kWh);
+  const { band, index } = bandFor(version, kWh, { customerClass });
+  const lines = bandLines(band, kWh);
   const energy = lines.reduce((s, l) => s + l.amount, 0);
-  const serviceFee = feeFor(residential.serviceFees, kWh);
+  const serviceFee = feeFor(tariff.serviceFees, kWh);
+  const stamps = stampAmount(tariff.stamps, kWh);
   return {
     versionId: version.id,
+    customerClass,
     meterType,
     kWh,
     bandIndex: index,
     lines,
     energy,
     serviceFee,
-    total: energy + serviceFee,
-    confidence: version.confidence,
+    stamps,
+    total: energy + serviceFee + stamps,
+    confidence,
   };
 }
 
@@ -173,8 +187,8 @@ export interface Cliff {
 
 /** Band boundaries where one more kWh moves the whole month into a different pricing rule. */
 export function cliffs(version: TariffVersion, options: BillOptions = {}): Cliff[] {
-  return version.residential.bands
-    .filter((b): b is Band & { upTo: number } => b.upTo !== null)
+  return classTariff(version, resolveClass(options))
+    .bands.filter((b): b is Band & { upTo: number } => b.upTo !== null)
     .map((b) => {
       const totalBefore = bill(version, b.upTo, options).total;
       const totalAfter = bill(version, b.upTo + 1, options).total;

@@ -1,0 +1,24 @@
+# "ليه رصيدي اتخصم؟": 100 EGP paid, balance 0 -> 94: the 6 EGP gap is one month's service fee.
+# Runs after onboarding-prepaid (prepaid home, typical month 101-200 kWh -> 6 EGP fee).
+appId: com.fynxforge.addady
+---
+- launchApp
+- tapOn:
+    id: 'tab-tools'
+- tapOn: 'ليه رصيدي اتخصم؟'
+- tapOn:
+    text: 'شحنت كام'
+- inputText: '100'
+- tapOn:
+    text: 'الرصيد بعد الشحن'
+- inputText: '94'
+- tapOn:
+    text: 'استهلاكك في الشهر تقريبًا'
+- eraseText: 6
+- inputText: '150'
+- hideKeyboard
+- scrollUntilVisible:
+    element: 'احسب'
+- tapOn: 'احسب'
+- scrollUntilVisible:
+    element: 'الخصم ده غالبًا مقابل خدمة العملاء'

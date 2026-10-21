@@ -2,6 +2,7 @@ import { cairo, consumptionMonth } from '@addady/energy-model';
 import { versionFor } from 'eg-electricity-tariff';
 
 import { estimateAppliance, priceSaving, seasonOf } from '../domain/appliances';
+import { billOptions } from '../domain/place';
 import { t } from '../i18n';
 import { useFormat } from '../settings';
 import { useHomeData } from '../state';
@@ -65,7 +66,7 @@ export default function WhatIf() {
       {scenarios
         .map((s) => ({
           ...s,
-          saving: priceSaving(version, monthKWh, s.kWhPerDay, days, home.meterType),
+          saving: priceSaving(version, monthKWh, s.kWhPerDay, days, billOptions(home)),
         }))
         .sort((a, b) => b.saving.piastersPerMonth - a.saving.piastersPerMonth)
         .map((s) => (

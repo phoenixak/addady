@@ -3,6 +3,7 @@ import {
   bill,
   versionFor,
   type Bill,
+  type CustomerClass,
   type MeterType,
   type TariffFile,
 } from 'eg-electricity-tariff';
@@ -28,10 +29,15 @@ export function checkBill(input: {
   kWh: number;
   billedPiasters: number;
   meterType: MeterType;
+  customerClass?: CustomerClass;
   otherChargesPiasters: number;
 }): BillCheck {
   const version = versionFor(input.tariffs, input.month);
-  const expected = bill(version, Math.round(input.kWh), { meterType: input.meterType });
+  const customerClass = input.customerClass ?? 'residential';
+  const expected = bill(version, Math.round(input.kWh), {
+    customerClass,
+    meterType: input.meterType,
+  });
   const expectedTotal = expected.total + input.otherChargesPiasters;
   const gap = input.billedPiasters - expectedTotal;
   const verdict = Math.abs(gap) <= MATCH_TOLERANCE ? 'match' : gap > 0 ? 'higher' : 'lower';
@@ -39,9 +45,9 @@ export function checkBill(input: {
   if (verdict !== 'match') {
     causes.push('estimated', 'month');
     if (gap > 0) causes.push('other');
-    if (input.meterType !== 'coded' && gap > 0) {
+    if (customerClass === 'residential' && input.meterType !== 'coded' && gap > 0) {
       // A coded meter bills every kWh at the flat rate: check whether that explains the gap.
-      const coded = version.coded
+      const coded = version.classes.coded
         ? bill(version, Math.round(input.kWh), { meterType: 'coded' }).total
         : null;
       if (

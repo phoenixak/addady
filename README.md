@@ -2,10 +2,16 @@
 
 **اعرف إنت في أنهي شريحة قبل ما الفاتورة تفاجئك**: know which electricity tier you're in before the bill surprises you.
 
-A free, open-source Android app for Egyptian households:
-- **Your tier and bill:** this month's tier and the projected bill.
+A free, open-source Android app for every electricity meter in Egypt: homes, shops, offices, factories and farms.
+- **Your tier and bill:** this month's tier and the projected bill, priced with your EgyptERA class (residential, commercial, voltage level, irrigation).
 - **Prepaid run-out:** when a prepaid meter will run out, counting the no-cut grace periods (Fridays, holidays, 17:00–10:00).
-- **Your appliances:** what each appliance costs, estimated from the label on its back.
+- **Tools:**
+  - a bill checker
+  - "ليه رصيدي اتخصم؟" (why was my balance deducted at recharge?)
+  - tier cliffs
+  - prices for every class
+  - appliance costs from the label on the back
+- **اعرف حقك (know your rights):** sourced step-by-step procedures (complaints, contesting a bill, meter tests, coded → legal meters), with a 121 call button.
 
 No account, no ads, no trackers. Your readings stay on your phone.
 
@@ -27,7 +33,7 @@ Public beta. See `CHANGELOG.md` for what's in each release, `docs/PLAN.md` for t
 | Path | What it is |
 |---|---|
 | `apps/addady` | The Expo (React Native) app |
-| `packages/eg-electricity-tariff` | Egyptian residential electricity tariffs and bill engine (MIT, to be published on npm) |
+| `packages/eg-electricity-tariff` | Egyptian electricity tariffs for every customer class, and the bill engine ([npm](https://www.npmjs.com/package/eg-electricity-tariff), MIT) |
 | `packages/energy-model` | Usage projection, prepaid run-out simulator, appliance models |
 | `packages/ui-ar` | Arabic-first UI kit: RTL, Arabic numerals, money formatting |
 

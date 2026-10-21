@@ -26,7 +26,7 @@ describe('UI building blocks', () => {
     );
     expect(screen.getByText(ar.home.projectedBill)).toBeTruthy();
     expect(screen.getByText('٣٥٦ ج.م')).toBeTruthy();
-    expect(screen.getByText(`≈ ${ar.common.estimated}`)).toBeTruthy();
+    expect(screen.getByText(ar.common.estimated)).toBeTruthy();
   });
 
   it('parses numbers typed with Arabic-Indic or Latin digits', () => {

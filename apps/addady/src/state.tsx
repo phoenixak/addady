@@ -1,7 +1,7 @@
 // App-wide data: tariffs (bundled or verified download) and the current home's live status.
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { bundledTariffs, type TariffFile } from 'eg-electricity-tariff';
-import { DEFAULT_GRACE } from '@addady/energy-model';
+import { GRACE } from './content/holidays';
 import {
   createContext,
   useCallback,
@@ -73,8 +73,7 @@ export function useHomeData() {
   const { tariffs } = useTariffs();
   const now = useNow();
   const status: HomeStatus | null = useMemo(
-    () =>
-      home && readings ? homeStatus({ home, readings, tariffs, now, grace: DEFAULT_GRACE }) : null,
+    () => (home && readings ? homeStatus({ home, readings, tariffs, now, grace: GRACE }) : null),
     [home, readings, tariffs, now],
   );
   return {

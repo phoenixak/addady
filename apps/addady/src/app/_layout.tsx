@@ -10,7 +10,7 @@ import { db } from '../db/client';
 import { t } from '../i18n';
 import { initNotifications } from '../services/notifications';
 import { TariffProvider } from '../state';
-import { Body, Screen, useColors } from '../ui';
+import { Body, Screen, ToastProvider, useColors } from '../ui';
 
 export default function RootLayout() {
   const { success, error } = useMigrations(db, migrations);
@@ -41,32 +41,36 @@ export default function RootLayout() {
 
   return (
     <TariffProvider>
-      <StatusBar style="auto" />
-      <Stack
-        screenOptions={{
-          headerStyle: { backgroundColor: c.surface },
-          headerTintColor: c.text,
-          headerTitleStyle: { fontFamily: fontFamily.bold },
-          contentStyle: { backgroundColor: c.background },
-        }}
-      >
-        <Stack.Screen name="index" options={{ title: t('app.name') }} />
-        <Stack.Screen name="setup" options={{ title: t('setup.title') }} />
-        <Stack.Screen
-          name="reading"
-          options={{ title: t('reading.title'), presentation: 'modal' }}
-        />
-        <Stack.Screen
-          name="recharge"
-          options={{ title: t('recharge.title'), presentation: 'modal' }}
-        />
-        <Stack.Screen name="bill-check" options={{ title: t('billCheck.title') }} />
-        <Stack.Screen name="history" options={{ title: t('history.title') }} />
-        <Stack.Screen name="appliances/index" options={{ title: t('appliances.title') }} />
-        <Stack.Screen name="appliances/new" options={{ title: t('appliances.add') }} />
-        <Stack.Screen name="what-if" options={{ title: t('whatIf.title') }} />
-        <Stack.Screen name="settings" options={{ title: t('settings.title') }} />
-      </Stack>
+      <ToastProvider>
+        <StatusBar style="auto" />
+        <Stack
+          screenOptions={{
+            headerStyle: { backgroundColor: c.surface },
+            headerTintColor: c.text,
+            headerTitleStyle: { fontFamily: fontFamily.bold },
+            contentStyle: { backgroundColor: c.background },
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="setup" options={{ title: t('setup.title') }} />
+          <Stack.Screen
+            name="reading"
+            options={{ title: t('reading.title'), presentation: 'modal' }}
+          />
+          <Stack.Screen
+            name="recharge"
+            options={{ title: t('recharge.title'), presentation: 'modal' }}
+          />
+          <Stack.Screen name="bill-check" options={{ title: t('billCheck.title') }} />
+          <Stack.Screen name="appliances/index" options={{ title: t('appliances.title') }} />
+          <Stack.Screen name="appliances/new" options={{ title: t('appliances.add') }} />
+          <Stack.Screen name="what-if" options={{ title: t('whatIf.title') }} />
+          <Stack.Screen name="explain-recharge" options={{ title: t('explain.title') }} />
+          <Stack.Screen name="cliffs" options={{ title: t('cliffs.title') }} />
+          <Stack.Screen name="prices" options={{ title: t('prices.title') }} />
+          <Stack.Screen name="rights/[id]" options={{ title: t('rights.title') }} />
+        </Stack>
+      </ToastProvider>
     </TariffProvider>
   );
 }

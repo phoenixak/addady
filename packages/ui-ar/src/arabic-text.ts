@@ -20,6 +20,7 @@ const REVERSED_ARTICLE = LAM + ALEF;
 /** Common real words ending in lam-alef (adverbs, greetings). This file is exempt from the scan. */
 const REAL_LAM_ALEF_WORDS = new Set([
   'مثلا',
+  'فيلا',
   'أولا',
   'أصلا',
   'فعلا',

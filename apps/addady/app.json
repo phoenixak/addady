@@ -2,7 +2,7 @@
   "expo": {
     "name": "عدّادي",
     "slug": "addady",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "addady",
@@ -20,7 +20,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.fynxforge.addady",
-      "versionCode": 1
+      "versionCode": 2
     },
     "web": {
       "output": "static",

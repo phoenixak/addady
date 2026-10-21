@@ -1,0 +1,16 @@
+# A factory with its own transformer is priced at medium voltage, with no tier cliffs.
+appId: com.fynxforge.addady
+---
+- clearState
+- launchApp
+- tapOn: 'مصنع'
+- tapOn: 'التالي'
+- tapOn: 'عندنا محول خاص (جهد متوسط)'
+- tapOn: 'التالي'
+- tapOn: 'يلا نبدأ'
+- assertVisible: 'جهد متوسط.*'
+- tapOn:
+    id: 'tab-tools'
+- assertNotVisible: 'حدود الشرائح'
+- tapOn: 'أسعار الكهربا'
+- assertVisible: 'كل الاستهلاك: كله بسعر.*'

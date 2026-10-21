@@ -1,13 +1,18 @@
-# Fresh install -> prepaid home -> first reading with balance -> dashboard shows the run-out card.
+# Fresh install -> "مين إنت؟" home with a card meter -> first reading with balance -> run-out card.
 appId: com.fynxforge.addady
 ---
 - clearState
 - launchApp
-- assertVisible: 'بيانات البيت'
+- assertVisible: 'مين إنت؟'
+- tapOn: 'بيت'
+- tapOn: 'التالي'
 - tapOn: 'عداد كارت (مسبق الدفع)'
+- tapOn: 'التالي'
 - tapOn: 'يلا نبدأ'
 - assertVisible: 'سجل أول قراية عشان نحسبلك'
-- tapOn: 'سجل قراية'
+- tapOn:
+    text: 'سجل قراية'
+    index: 0
 - tapOn:
     text: 'استهلاك الشهر على العداد (ك.و.س)'
 - inputText: '88'
@@ -15,5 +20,6 @@ appId: com.fynxforge.addady
     text: 'الرصيد الحالي (جنيه)'
 - inputText: '50'
 - tapOn: 'حفظ'
-- assertVisible: 'الرصيد هيخلص'
-- assertVisible: 'تطبيق غير رسمي، والتقدير مش هو فاتورتك'
+- assertVisible: 'الرصيد هيخلص حوالي.*'
+- scrollUntilVisible:
+    element: 'تطبيق غير رسمي، والتقدير مش هو فاتورتك'

@@ -1,9 +1,10 @@
 # Bill checker reproduces an official EEHC example under the 2026-04 tariff (300 kWh ~ 356 EGP).
+# Runs after onboarding-prepaid (a home must exist).
 appId: com.fynxforge.addady
 ---
 - launchApp
-- scrollUntilVisible:
-    element: 'راجع فاتورتك'
+- tapOn:
+    id: 'tab-tools'
 - tapOn: 'راجع فاتورتك'
 - tapOn:
     text: 'الاستهلاك في الفاتورة (ك.و.س)'

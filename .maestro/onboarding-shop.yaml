@@ -1,0 +1,11 @@
+# A shop on a postpaid meter is priced as commercial.
+appId: com.fynxforge.addady
+---
+- clearState
+- launchApp
+- tapOn: 'محل'
+- tapOn: 'التالي'
+- tapOn: 'عداد عادي (فاتورة شهرية)'
+- tapOn: 'التالي'
+- tapOn: 'يلا نبدأ'
+- assertVisible: 'تجاري · عداد عادي \(فاتورة شهرية\)'

@@ -12,7 +12,8 @@
     },
     "./tsconfig.base.json": "./tsconfig.base.json",
     "./expo/with-release-signing": "./expo/with-release-signing.cjs",
-    "./expo/with-windows-cmake": "./expo/with-windows-cmake.cjs"
+    "./expo/with-windows-cmake": "./expo/with-windows-cmake.cjs",
+    "./expo/with-abi-splits": "./expo/with-abi-splits.cjs"
   },
   "dependencies": {
     "@eslint/js": "^10.0.1",

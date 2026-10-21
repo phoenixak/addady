@@ -131,8 +131,40 @@ describe('homeStatus', () => {
       runs: 100,
     });
     expect(s.latestBalance).toBe(3000);
+    // The meter's own "this month" counter (166) plus 1 day since the read at the measured 8 kWh/day.
+    expect(s.kWhSoFar!).toBeGreaterThan(166);
+    expect(s.kWhSoFar!).toBeCloseTo(166 + 8, 5);
     expect(s.runOut!.zeroAt!.p10.getTime()).toBeGreaterThan(cairoTime(2026, 10, 19, 12).getTime());
     expect(s.runOut!.cutAt!.p10.getTime()).toBeGreaterThanOrEqual(s.runOut!.zeroAt!.p10.getTime());
+  });
+
+  it('regression (seen on device): a single prepaid reading of 88 kWh means 88 kWh this month, not 0', () => {
+    const rows = [reading(cairoTime(2026, 10, 20, 12), { monthKWh: 88, balancePiasters: 5000 })];
+    const s = homeStatus({
+      home: home({ meterType: 'prepaid' }),
+      readings: rows,
+      tariffs: bundledTariffs,
+      now,
+      grace: DEFAULT_GRACE,
+      runs: 50,
+    });
+    expect(s.kWhSoFar).toBeCloseTo(88, 5);
+    expect(s.kWhSoFarEstimated).toBe(false);
+    expect(s.cliff!.atKWh).toBe(100);
+    expect(s.budget!.kWhPerDay).toBeCloseTo(12 / s.daysLeft, 5);
+  });
+
+  it('a prepaid counter from last meter month is not used for this month', () => {
+    const rows = [reading(cairoTime(2026, 9, 28), { monthKWh: 300 })];
+    const s = homeStatus({
+      home: home({ meterType: 'prepaid' }),
+      readings: rows,
+      tariffs: bundledTariffs,
+      now,
+      grace: DEFAULT_GRACE,
+      runs: 50,
+    });
+    expect(s.kWhSoFar).not.toBe(300);
   });
 
   it('coded meters have no cliffs', () => {

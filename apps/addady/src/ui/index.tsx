@@ -1,5 +1,5 @@
 // Shared building blocks. Big tap targets, colour always paired with an icon or word, start/end only.
-import { type ReactNode } from 'react';
+import { useRef, type ComponentRef, type ReactNode } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -167,15 +167,21 @@ export function Field({
   ...input
 }: TextInputProps & { label: string; hint?: string; error?: string | null }) {
   const c = useColors();
+  const ref = useRef<ComponentRef<typeof TextInput>>(null);
   return (
     <View style={styles.field}>
-      <ArText color={c.text}>{label}</ArText>
-      {hint ? (
-        <ArText variant="caption" color={c.textMuted}>
-          {hint}
-        </ArText>
-      ) : null}
+      {/* Tapping the label or hint focuses the input (bigger target, screen-reader friendly). */}
+      <Pressable onPress={() => ref.current?.focus()} accessible={false} style={styles.fieldLabel}>
+        <ArText color={c.text}>{label}</ArText>
+        {hint ? (
+          <ArText variant="caption" color={c.textMuted}>
+            {hint}
+          </ArText>
+        ) : null}
+      </Pressable>
       <TextInput
+        ref={ref}
+        accessibilityLabel={label}
         maxFontSizeMultiplier={MAX_FONT_SCALE}
         placeholderTextColor={c.textMuted}
         style={[
@@ -287,6 +293,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   field: { gap: spacing.xs },
+  fieldLabel: { gap: spacing.xs },
   input: {
     minHeight: TOUCH_TARGET,
     borderWidth: 1,

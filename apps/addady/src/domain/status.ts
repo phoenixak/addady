@@ -88,7 +88,21 @@ export function homeStatus({
 
   let kWhSoFar: number | null = null;
   let kWhSoFarEstimated = false;
-  if (last) {
+  // Prepaid meters show "consumed this meter month" directly: when the latest such reading falls in
+  // the current meter month it IS the month so far. (Differencing the stitched cumulative series
+  // instead loses everything used before the first reading of the month.)
+  const latestMonthCounter = [...readings]
+    .filter((r) => r.monthKWh !== null)
+    .sort((a, b) => b.at - a.at)[0];
+  const counterThisMonth =
+    meterType === 'prepaid' && latestMonthCounter && latestMonthCounter.at >= monthStart.getTime()
+      ? latestMonthCounter
+      : null;
+  if (counterThisMonth) {
+    const sinceRead = Math.max(0, (now.getTime() - counterThisMonth.at) / DAY_MS);
+    kWhSoFar = counterThisMonth.monthKWh! + sinceRead * model.meanPerDay;
+    kWhSoFarEstimated = false;
+  } else if (last) {
     const atStart = interpolate(series, monthStart)!;
     // Usage since the last reading is estimated from the model.
     const sinceLast = Math.max(

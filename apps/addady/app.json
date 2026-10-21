@@ -2,7 +2,7 @@
   "expo": {
     "name": "عدّادي",
     "slug": "addady",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "addady",
@@ -56,7 +56,8 @@
       "@addady/config/expo/with-release-signing",
       "@addady/config/expo/with-windows-cmake",
       "expo-sqlite",
-      "expo-sharing"
+      "expo-sharing",
+      "@addady/config/expo/with-abi-splits"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -57,9 +57,11 @@ function useNow(): Date {
 
 export function useCurrentHome() {
   const settings = useSettings();
-  const { data: homes } = useLiveQuery(queries.homes());
-  const home = homes?.find((h) => h.id === settings.currentHomeId) ?? homes?.[0] ?? null;
-  return { homes: homes ?? [], home, loaded: homes !== undefined };
+  // useLiveQuery returns data: [] before the first query completes; only `updatedAt` tells
+  // "not loaded yet" apart from "loaded, no homes" (otherwise the dashboard bounces to setup).
+  const { data: homes, updatedAt } = useLiveQuery(queries.homes());
+  const home = homes.find((h) => h.id === settings.currentHomeId) ?? homes[0] ?? null;
+  return { homes, home, loaded: updatedAt !== undefined };
 }
 
 export function useHomeData() {

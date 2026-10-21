@@ -50,11 +50,23 @@ jobs:
       - name: Build npm package (eg-electricity-tariff)
         run: pnpm --filter eg-electricity-tariff build
 
-      # TODO(Phase 5): supabase start + supabase test db (pgTAP)
+      - name: Edge Function validator tests
+        run: pnpm test:functions
 
       - name: Bundle check (expo export, Android)
         run: |
           pnpm --filter @addady/app export:android
+
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      # Local throwaway stack: migrations applied from scratch, then the pgTAP suite.
+      - run: supabase db start
+      - run: supabase test db
 
   leaks:
     runs-on: ubuntu-latest

@@ -1,7 +1,10 @@
+import Constants from 'expo-constants';
 import { useState } from 'react';
+import { Linking } from 'react-native';
 import { cairoDateKey } from '@addady/energy-model';
 
 import { checkBill, type BillCheck } from '../domain/billCheck';
+import { mismatchReport } from '../domain/report';
 import { t } from '../i18n';
 import { useFormat } from '../settings';
 import { useCurrentHome, useTariffs } from '../state';
@@ -29,7 +32,21 @@ export default function BillCheckScreen() {
   const [month, setMonth] = useState(cairoDateKey(Date.now()).slice(0, 7));
   const [result, setResult] = useState<BillCheck | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showReport, setShowReport] = useState(false);
   if (!home) return null;
+
+  const report =
+    result && result.verdict !== 'match'
+      ? mismatchReport({
+          month,
+          kWh: Math.round(parseNumber(kWh) ?? 0),
+          billedPiasters: result.expectedTotal + result.gap,
+          expectedPiasters: result.expectedTotal,
+          meterType: home.meterType,
+          tariffVersion: result.expected.versionId,
+          appVersion: Constants.expoConfig?.version ?? 'unknown',
+        })
+      : null;
 
   const run = () => {
     const k = parseNumber(kWh);
@@ -114,6 +131,23 @@ export default function BillCheckScreen() {
                 >{`• ${t(`billCheck.cause${c[0]!.toUpperCase()}${c.slice(1)}`)}`}</Body>
               ))}
               <Caption>{t('billCheck.reportHint')}</Caption>
+              {report && !showReport ? (
+                <Button
+                  kind="secondary"
+                  label={t('billCheck.previewReport')}
+                  onPress={() => setShowReport(true)}
+                />
+              ) : null}
+              {report && showReport ? (
+                <>
+                  <Caption>{t('billCheck.reportExact')}</Caption>
+                  <Body muted>{report.body}</Body>
+                  <Button
+                    label={t('billCheck.sendReport')}
+                    onPress={() => void Linking.openURL(report.url)}
+                  />
+                </>
+              ) : null}
             </>
           ) : null}
         </Card>

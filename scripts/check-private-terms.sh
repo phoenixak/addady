@@ -29,6 +29,7 @@ fi
 if grep -rliF -f "$terms" \
   --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.expo \
   --exclude-dir=android --exclude-dir=ios --exclude-dir=coverage --exclude-dir=dist \
+  --exclude-dir=release \
   --exclude='*.ttf' --exclude='*.png' . ; then
   echo "private term found in the files above" >&2
   exit 1

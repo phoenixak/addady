@@ -32,8 +32,9 @@ const version = expo.version;
 
 if (!process.argv.includes('--skip-build')) {
   run('npx', ['expo', 'prebuild', '-p', 'android', '--clean', '--no-install'], APP);
+  // Absolute path: cmd.exe doesn't run a .bat from the working directory by bare name.
   run(
-    win ? 'gradlew.bat' : './gradlew',
+    join(APP, 'android', win ? 'gradlew.bat' : 'gradlew'),
     ['assembleRelease', '--console=plain'],
     join(APP, 'android'),
   );
@@ -54,7 +55,8 @@ rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT);
 const sums = [];
 for (const apk of apks) {
-  const abi = apk.match(/release-(.+)\.apk$/)?.[1] ?? 'universal';
+  // Gradle names split outputs app-<abi>-release.apk.
+  const abi = apk.match(/^app-(.+)-release\.apk$/)?.[1] ?? 'universal';
   const name = `addady-${version}-${abi}.apk`;
   const src = join(apkDir, apk);
   const certs = capture(apksigner, ['verify', '--print-certs', src]);

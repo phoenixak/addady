@@ -57,7 +57,17 @@
       "@addady/config/expo/with-windows-cmake",
       "expo-sqlite",
       "expo-sharing",
-      "@addady/config/expo/with-abi-splits"
+      "@addady/config/expo/with-abi-splits",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "useLegacyPackaging": true
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
